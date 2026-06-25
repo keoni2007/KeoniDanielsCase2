@@ -1,1 +1,172 @@
-Create table Employee(empNo int primary key, fName varchar(50), lName varchar(50), address varchar(50),DOB date,sex char(1),position varchar(50), deptNo int);Query OK, 0 rows affected (0.022 sec)desc employee;+----------+-------------+------+-----+---------+-------+| Field    | Type        | Null | Key | Default | Extra |+----------+-------------+------+-----+---------+-------+| empNo    | int         | NO   | PRI | NULL    |       || fName    | varchar(50) | YES  |     | NULL    |       || lName    | varchar(50) | YES  |     | NULL    |       || address  | varchar(50) | YES  |     | NULL    |       || DOB      | date        | YES  |     | NULL    |       || sex      | char(1)     | YES  |     | NULL    |       || position | varchar(50) | YES  |     | NULL    |       || deptNo   | int         | YES  |     | NULL    |       |+----------+-------------+------+-----+---------+-------+8 rows in set (0.006 sec)Create table Department( deptNo int primary key, deptName varchar(50), mgrEmpNo int);Query OK, 0 rows affected (0.009 sec)desc department;+----------+-------------+------+-----+---------+-------+| Field    | Type        | Null | Key | Default | Extra |+----------+-------------+------+-----+---------+-------+| deptNo   | int         | NO   | PRI | NULL    |       || deptName | varchar(50) | YES  |     | NULL    |       || mgrEmpNo | int         | YES  |     | NULL    |       |+----------+-------------+------+-----+---------+-------+3 rows in set (0.003 sec)Create table Project(projNo int primary key, projName varchar(50), deptNo int, foreign key(deptNo) references department(deptNo));Query OK, 0 rows affected (0.012 sec)desc project;+----------+-------------+------+-----+---------+-------+| Field    | Type        | Null | Key | Default | Extra |+----------+-------------+------+-----+---------+-------+| projNo   | int         | NO   | PRI | NULL    |       || projName | varchar(50) | YES  |     | NULL    |       || deptNo   | int         | YES  | MUL | NULL    |       |+----------+-------------+------+-----+---------+-------+3 rows in set (0.013 sec)Create table WorksOn(empNo int,projNo int, dateWorked date, hoursWorked double, primary key(empNo,projNo,dateWorked), foreign key (empNo) references Employee(empNo), foreign key (projNo) references project(projNo));desc worksOn;+-------------+--------+------+-----+---------+-------+| Field       | Type   | Null | Key | Default | Extra |+-------------+--------+------+-----+---------+-------+| empNo       | int    | NO   | PRI | NULL    |       || projNo      | int    | NO   | PRI | NULL    |       || dateWorked  | date   | NO   | PRI | NULL    |       || hoursWorked | double | YES  |     | NULL    |       |+-------------+--------+------+-----+---------+-------+4 rows in set (0.003 sec)select * from department;+--------+-----------------+----------+| deptNo | deptName        | mgrEmpNo |+--------+-----------------+----------+| D1     | Engineering     | E1       || D2     | Finance         | E3       || D3     | Human Resources | E5       |+--------+-----------------+----------+3 rows in set (0.001 sec)MySQL [individualtable]> select * from workson;+-------+--------+------------+-------------+| empNo | projNo | dateWorked | hoursWorked |+-------+--------+------------+-------------+| E1    | P1     | 2024-01-08 |           8 || E2    | P1     | 2024-01-08 |           7 || E3    | P2     | 2024-01-08 |           8 || E4    | P2     | 2024-01-08 |           6 || E5    | P3     | 2024-01-08 |           8 || E6    | P3     | 2024-01-08 |           7 |+-------+--------+------------+-------------+6 rows in set (0.000 sec)MySQL [individualtable]> select * from project;+--------+----------------------+--------+| projNo | projName             | deptNo |+--------+----------------------+--------+| P1     | Core Banking System  | D1     || P2     | Annual Budget Review | D2     || P3     | Staff Onboarding     | D3     |+--------+----------------------+--------+3 rows in set (0.000 sec)MySQL [individualtable]> select * from employee;+-------+--------+----------+-----------------------+------------+------+--------------------+--------+| empNo | fName  | lName    | address               | DOB        | sex  | position           | deptNo |+-------+--------+----------+-----------------------+------------+------+--------------------+--------+| E1    | James  | Owusu    | 12 Ring Road, Accra   | 1978-03-15 | M    | Manager            | D1     || E2    | Akosua | Mensah   | 5 Tema Motorway, Tema | 1990-07-22 | F    | Team Leader        | D1     || E3    | Abena  | Amponsah | 17 High St, Kumasi    | 1980-01-09 | F    | Manager            | D2     || E4    | Kofi   | Darko    | 22 Airport Rd, Accra  | 1988-09-03 | M    | Analyst            | D2     || E5    | Yaw    | Tetteh   | 44 Independence Ave   | 1975-12-25 | M    | Manager            | D3     || E6    | Adwoa  | Quaye    | 7 Dansoman Rd, Accra  | 1991-08-07 | F    | Software Developer | D3     |+-------+--------+----------+-----------------------+------------+------+--------------------+--------+6 rows in set (0.001 sec)7.24 Create the Projects schema using the integrity enhancement features of SQL with the following constraints:(a) sex must be one of the single characters ÔMÕ or ÔFÕ.(b) position must be one of ÔManagerÕ, ÔTeam LeaderÕ, ÔAnalystÕ, or ÔSoftware DeveloperÕ.(c) hoursWorked must be an integer value between 0 and 40ANSWERSsexQuery OK, 0 rows affected (0.027 sec)Records: 0  Duplicates: 0  Warnings: 0Alter table Employee Add constraint chck_position check(position IN ('Manager','Team Leader','Analyst','Software Developer'));Query OK, 0 rows affected (0.032 sec)Records: 0  Duplicates: 0  Warnings: 0Alter table WorksOn Add constraint chck_hoursWorkerd check(hoursWorked BETWEEN 0 AND 40);Query OK, 0 rows affected (0.024 sec)Records: 0  Duplicates: 0  Warnings: 0CREATE VIEW femaleProjectManager AS SELECT p.projNo, p.projName, p.deptNo, d.deptName, e.empNo FROM Project p JOIN Department d ON p.deptNo = d.deptNo JOIN Employee e ON d.mgrEmpNo = e.empNo WHERE e.sex = 'F' AND e.position = 'Manager' ORDER BY p.projNo;Query OK, 0 rows affected (0.015 sec)select * from femaleprojectmanager;+--------+----------------------+--------+----------+-------+| projNo | projName             | deptNo | deptName | empNo |+--------+----------------------+--------+----------+-------+| P2     | Annual Budget Review | D2     | Finance  | E3    |+--------+----------------------+--------+----------+-------+1 row in set (0.013 sec)CREATE VIEW EmpProjectHours AS SELECT e.empNo, e.fName, e.lName, p.projName, w.hoursWorked FROM Employee e JOIN WorksOn w ON e.empNo = w.empNo JOIN Project p ON w.projNo = p.projNo;select * from EmpProjectHours;+-------+--------+----------+----------------------+-------------+| empNo | fName  | lName    | projName             | hoursWorked |+-------+--------+----------+----------------------+-------------+| E1    | James  | Owusu    | Core Banking System  |           8 || E2    | Akosua | Mensah   | Core Banking System  |           7 || E3    | Abena  | Amponsah | Annual Budget Review |           8 || E4    | Kofi   | Darko    | Annual Budget Review |           6 || E5    | Yaw    | Tetteh   | Staff Onboarding     |           8 || E6    | Adwoa  | Quaye    | Staff Onboarding     |           7 |+-------+--------+----------+----------------------+-------------+6 rows in set (0.002 sec)a).SELECT * FROM EMPPROJECT;+-------+--------+------------+| empNo | projNo | totalHours |+-------+--------+------------+| E1    | P1     |          8 || E2    | P1     |          7 || E3    | P2     |          8 || E4    | P2     |          6 || E5    | P3     |          8 || E6    | P3     |          7 |+-------+--------+------------+6 rows in set (0.004 sec)Select projNo from empproject where projno = 'SCCS';Empty set (0.003 sec)SELECT COUNT(PROJNO) FROM EMPPROJECT WHERE EMPNO = 'E1';+---------------+| COUNT(PROJNO) |+---------------+|             1 |+---------------+1 row in set (0.001 sec)SELECT empNo, SUM(totalHours) AS totalHours FROM EmpProjectGROUP BY empNo;+-------+------------+| empNo | totalHours |+-------+------------+| E1    |          8 || E2    |          7 || E3    |          8 || E4    |          6 || E5    |          8 || E6    |          7 |+-------+------------+6 rows in set (0.002 sec)
+Create table Employee(empNo int primary key, fName varchar(50), lName varchar(50), address varchar(50),DOB date,sex char(1),position varchar(50), deptNo int);
+Query OK, 0 rows affected (0.022 sec)
+desc employee;
++----------+-------------+------+-----+---------+-------+
+| Field    | Type        | Null | Key | Default | Extra |
++----------+-------------+------+-----+---------+-------+
+| empNo    | int         | NO   | PRI | NULL    |       |
+| fName    | varchar(50) | YES  |     | NULL    |       |
+| lName    | varchar(50) | YES  |     | NULL    |       |
+| address  | varchar(50) | YES  |     | NULL    |       |
+| DOB      | date        | YES  |     | NULL    |       |
+| sex      | char(1)     | YES  |     | NULL    |       |
+| position | varchar(50) | YES  |     | NULL    |       |
+| deptNo   | int         | YES  |     | NULL    |       |
++----------+-------------+------+-----+---------+-------+
+8 rows in set (0.006 sec)
+Create table Department( deptNo int primary key, deptName varchar(50), mgrEmpNo int);
+Query OK, 0 rows affected (0.009 sec)
+desc department;
++----------+-------------+------+-----+---------+-------+
+| Field    | Type        | Null | Key | Default | Extra |
++----------+-------------+------+-----+---------+-------+
+| deptNo   | int         | NO   | PRI | NULL    |       |
+| deptName | varchar(50) | YES  |     | NULL    |       |
+| mgrEmpNo | int         | YES  |     | NULL    |       |
++----------+-------------+------+-----+---------+-------+
+3 rows in set (0.003 sec)
+
+Create table Project(projNo int primary key, projName varchar(50), deptNo int, foreign key(deptNo) references department(deptNo));
+Query OK, 0 rows affected (0.012 sec)
+desc project;
++----------+-------------+------+-----+---------+-------+
+| Field    | Type        | Null | Key | Default | Extra |
++----------+-------------+------+-----+---------+-------+
+| projNo   | int         | NO   | PRI | NULL    |       |
+| projName | varchar(50) | YES  |     | NULL    |       |
+| deptNo   | int         | YES  | MUL | NULL    |       |
++----------+-------------+------+-----+---------+-------+
+3 rows in set (0.013 sec)
+Create table WorksOn(empNo int,projNo int, dateWorked date, hoursWorked double, primary key(empNo,projNo,dateWorked), foreign key (empNo) references Employee(empNo), foreign key (projNo) references project(projNo));
+desc worksOn;
++-------------+--------+------+-----+---------+-------+
+| Field       | Type   | Null | Key | Default | Extra |
++-------------+--------+------+-----+---------+-------+
+| empNo       | int    | NO   | PRI | NULL    |       |
+| projNo      | int    | NO   | PRI | NULL    |       |
+| dateWorked  | date   | NO   | PRI | NULL    |       |
+| hoursWorked | double | YES  |     | NULL    |       |
++-------------+--------+------+-----+---------+-------+
+4 rows in set (0.003 sec)
+select * from department;
++--------+-----------------+----------+
+| deptNo | deptName        | mgrEmpNo |
++--------+-----------------+----------+
+| D1     | Engineering     | E1       |
+| D2     | Finance         | E3       |
+| D3     | Human Resources | E5       |
++--------+-----------------+----------+
+3 rows in set (0.001 sec)
+
+MySQL [individualtable]> select * from workson;
++-------+--------+------------+-------------+
+| empNo | projNo | dateWorked | hoursWorked |
++-------+--------+------------+-------------+
+| E1    | P1     | 2024-01-08 |           8 |
+| E2    | P1     | 2024-01-08 |           7 |
+| E3    | P2     | 2024-01-08 |           8 |
+| E4    | P2     | 2024-01-08 |           6 |
+| E5    | P3     | 2024-01-08 |           8 |
+| E6    | P3     | 2024-01-08 |           7 |
++-------+--------+------------+-------------+
+6 rows in set (0.000 sec)
+
+MySQL [individualtable]> select * from project;
++--------+----------------------+--------+
+| projNo | projName             | deptNo |
++--------+----------------------+--------+
+| P1     | Core Banking System  | D1     |
+| P2     | Annual Budget Review | D2     |
+| P3     | Staff Onboarding     | D3     |
++--------+----------------------+--------+
+3 rows in set (0.000 sec)
+
+MySQL [individualtable]> select * from employee;
++-------+--------+----------+-----------------------+------------+------+--------------------+--------+
+| empNo | fName  | lName    | address               | DOB        | sex  | position           | deptNo |
++-------+--------+----------+-----------------------+------------+------+--------------------+--------+
+| E1    | James  | Owusu    | 12 Ring Road, Accra   | 1978-03-15 | M    | Manager            | D1     |
+| E2    | Akosua | Mensah   | 5 Tema Motorway, Tema | 1990-07-22 | F    | Team Leader        | D1     |
+| E3    | Abena  | Amponsah | 17 High St, Kumasi    | 1980-01-09 | F    | Manager            | D2     |
+| E4    | Kofi   | Darko    | 22 Airport Rd, Accra  | 1988-09-03 | M    | Analyst            | D2     |
+| E5    | Yaw    | Tetteh   | 44 Independence Ave   | 1975-12-25 | M    | Manager            | D3     |
+| E6    | Adwoa  | Quaye    | 7 Dansoman Rd, Accra  | 1991-08-07 | F    | Software Developer | D3     |
++-------+--------+----------+-----------------------+------------+------+--------------------+--------+
+6 rows in set (0.001 sec)
+7.24 Create the Projects schema using the integrity enhancement features of SQL with the following constraints:
+(a) sex must be one of the single characters Ã”MÃ• or Ã”FÃ•.
+(b) position must be one of Ã”ManagerÃ•, Ã”Team LeaderÃ•, Ã”AnalystÃ•, or Ã”Software DeveloperÃ•.
+(c) hoursWorked must be an integer value between 0 and 40
+ANSWERS
+Alter table Employee Add constraint chck_sex check(sex IN ('M','F'));
+Query OK, 0 rows affected (0.027 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+Alter table Employee Add constraint chck_position check(position IN ('Manager','Team Leader','Analyst','Software Developer'));
+Query OK, 0 rows affected (0.032 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+Alter table WorksOn Add constraint chck_hoursWorkerd check(hoursWorked BETWEEN 0 AND 40);
+Query OK, 0 rows affected (0.024 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+CREATE VIEW femaleProjectManager AS SELECT p.projNo, p.projName, p.deptNo, d.deptName, e.empNo FROM Project p JOIN Department d ON p.deptNo = d.deptNo JOIN Employee e ON d.mgrEmpNo = e.empNo WHERE e.sex = 'F' AND e.position = 'Manager' ORDER BY p.projNo;
+Query OK, 0 rows affected (0.015 sec)
+select * from femaleprojectmanager;
++--------+----------------------+--------+----------+-------+
+| projNo | projName             | deptNo | deptName | empNo |
++--------+----------------------+--------+----------+-------+
+| P2     | Annual Budget Review | D2     | Finance  | E3    |
++--------+----------------------+--------+----------+-------+
+1 row in set (0.013 sec)
+
+CREATE VIEW EmpProjectHours AS SELECT e.empNo, e.fName, e.lName, p.projName, w.hoursWorked FROM Employee e JOIN WorksOn w ON e.empNo = w.empNo JOIN Project p ON w.projNo = p.projNo;
+select * from EmpProjectHours;
++-------+--------+----------+----------------------+-------------+
+| empNo | fName  | lName    | projName             | hoursWorked |
++-------+--------+----------+----------------------+-------------+
+| E1    | James  | Owusu    | Core Banking System  |           8 |
+| E2    | Akosua | Mensah   | Core Banking System  |           7 |
+| E3    | Abena  | Amponsah | Annual Budget Review |           8 |
+| E4    | Kofi   | Darko    | Annual Budget Review |           6 |
+| E5    | Yaw    | Tetteh   | Staff Onboarding     |           8 |
+| E6    | Adwoa  | Quaye    | Staff Onboarding     |           7 |
++-------+--------+----------+----------------------+-------------+
+6 rows in set (0.002 sec)
+
+a).SELECT * FROM EMPPROJECT;
++-------+--------+------------+
+| empNo | projNo | totalHours |
++-------+--------+------------+
+| E1    | P1     |          8 |
+| E2    | P1     |          7 |
+| E3    | P2     |          8 |
+| E4    | P2     |          6 |
+| E5    | P3     |          8 |
+| E6    | P3     |          7 |
++-------+--------+------------+
+6 rows in set (0.004 sec)
+
+
+Select projNo from empproject where projno = 'SCCS';
+Empty set (0.003 sec)
+
+SELECT COUNT(PROJNO) FROM EMPPROJECT WHERE EMPNO = 'E1';
++---------------+
+| COUNT(PROJNO) |
++---------------+
+|             1 |
++---------------+
+1 row in set (0.001 sec)
+SELECT empNo, SUM(totalHours) AS totalHours FROM EmpProject
+GROUP BY empNo;
++-------+------------+
+| empNo | totalHours |
++-------+------------+
+| E1    |          8 |
+| E2    |          7 |
+| E3    |          8 |
+| E4    |          6 |
+| E5    |          8 |
+| E6    |          7 |
++-------+------------+
+6 rows in set (0.002 sec)
